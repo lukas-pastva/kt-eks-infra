@@ -13,25 +13,8 @@ configs:
     server.insecure: true
   cm:
     exec.enabled: true
-# STEP 2: Uncomment after first successful deploy (CRDs must exist first)
+
 extraObjects:
-  - apiVersion: argoproj.io/v1alpha1
-    kind: AppProject
-    metadata:
-      name: default
-      namespace: argo-cd
-    spec:
-      clusterResourceWhitelist:
-      - group: '*'
-        kind: '*'
-      description: default project
-      destinations:
-      - namespace: '*'
-        server: '*'
-      orphanedResources:
-        warn: true
-      sourceRepos:
-      - '*'
   - apiVersion: argoproj.io/v1alpha1
     kind: Application
     metadata:
