@@ -17,10 +17,6 @@ dependency "eks" {
 }
 
 locals {
-  secrets-store     = yamldecode(sops_decrypt_file("${find_in_parent_folders("cluster_secrets.yaml")}"))
-  registry_password = local.secrets-store.registry_password
-  registry_usename  = "bot"
-  registry_server   = "ghcr.io"
 }
 
 terraform {
@@ -38,10 +34,7 @@ inputs = {
   ######################
   # Secrets management #
   ######################
-  registry_server            = local.registry_server
-  registry_usename           = local.registry_usename
-  registry_password          = local.registry_password
-  create_regcreds            = true
+  create_regcreds            = false
 
   provisioners = {
     ts = {
