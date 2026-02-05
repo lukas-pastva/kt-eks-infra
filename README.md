@@ -261,7 +261,7 @@ terragrunt apply
 
 ---
 
-## Step 7: Configure kubectl
+## Step 8: Configure kubectl
 
 After EKS is deployed:
 

@@ -140,21 +140,20 @@ inputs = {
   cloudwatch_log_group_retention_in_days = local.cloudwatch_log_group_retention_in_days
 
 
-  access_entries = {
-    admin = {
-      principal_arn = local.cluster_admin_user
-      policy_associations = {
-        admin = {
-          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-          access_scope = {
-            type = "cluster"
-          }
-        }
-      }
-    }
-  }
-
-
+  # Note: access_entries removed because enable_cluster_creator_admin_permissions = true
+  # already grants admin access to the IAM principal that creates the cluster.
+  # If you need additional users/roles, add them here:
+  # access_entries = {
+  #   additional_admin = {
+  #     principal_arn = "arn:aws:iam::ACCOUNT_ID:user/other-user"
+  #     policy_associations = {
+  #       admin = {
+  #         policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  #         access_scope = { type = "cluster" }
+  #       }
+  #     }
+  #   }
+  # }
 
   node_security_group_additional_rules = {
     ingress_self_all = {
