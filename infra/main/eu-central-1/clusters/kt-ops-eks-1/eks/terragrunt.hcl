@@ -118,11 +118,11 @@ inputs = {
   }
   cluster_addons = {
     coredns = {
-      addon_version               = "v1.10.1-eksbuild.11"
+      addon_version               = "v1.11.3-eksbuild.2"
       resolve_conflicts_on_update = "OVERWRITE"
     }
     kube-proxy = {
-      addon_version               = "v1.28.12-eksbuild.5"
+      addon_version               = "v1.31.2-eksbuild.3"
       resolve_conflicts_on_update = "OVERWRITE"
     }
     vpc-cni = {

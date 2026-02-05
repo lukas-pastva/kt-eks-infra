@@ -1,6 +1,6 @@
 ---
 name: eks-1
-cluster_version: 1.28
+cluster_version: "1.31"
 
 cluster_logs:
 #  - api
@@ -19,7 +19,7 @@ argocd_config:
   argocd_fqdn: argocd.jamf.fun
   helm_secrets_version: 4.2.2
   sops_version: 3.9.4
-  kubectl_version: 1.28.0
+  kubectl_version: 1.31.0
   argocd_helmchart_versions: 9.4.0
   inital_app_target_revision: main
 

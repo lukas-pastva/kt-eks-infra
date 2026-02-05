@@ -7,6 +7,10 @@ include "root" {
 terraform {
   source = "github.com/terraform-aws-modules/terraform-aws-route53.git//modules/zones?ref=v4.1.0"
 
+  after_hook "show_nameservers" {
+    commands = ["apply"]
+    execute  = ["bash", "-c", "echo '\n========================================\nNAMESERVERS - Add these to your domain registrar:\n========================================' && tofu output -json route53_zone_name_servers 2>/dev/null || terraform output -json route53_zone_name_servers"]
+  }
 }
 
 inputs = {

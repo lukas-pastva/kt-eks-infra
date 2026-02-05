@@ -12,7 +12,7 @@ AWS EKS Infrastructure as Code using Terragrunt.
 | State Bucket | `sw-tronic-sk-tg-state-store` |
 | Lock Table | `sw-tronic-sk-tg-state-lock` |
 | Cluster Name | `kt-ops-eks-1` |
-| Kubernetes Version | `1.28` |
+| Kubernetes Version | `1.31` |
 | VPC CIDR | `10.240.64.0/21` |
 | Domain | `jamf.fun` |
 
@@ -181,7 +181,19 @@ File: `infra/main/eu-central-1/clusters/kt-ops-eks-1/component_values.yaml`
 
 ## Step 6: Deploy Infrastructure
 
-Deploy in this order (dependencies matter):
+**Recommended:** Deploy everything at once - Terragrunt handles dependencies automatically:
+
+```powershell
+cd C:\git\git.jamf\kt-eks-infra\infra\main\eu-central-1
+terragrunt run-all apply
+```
+
+This will deploy all components in the correct order based on the `dependency` blocks.
+
+<details>
+<summary><strong>Manual step-by-step deployment (click to expand)</strong></summary>
+
+If you prefer to deploy components one by one (for debugging or understanding):
 
 ```powershell
 cd C:\git\git.jamf\kt-eks-infra
@@ -236,14 +248,7 @@ cd ../../argo-cd
 terragrunt apply
 ```
 
-### Alternative: Deploy All at Once
-
-```powershell
-cd infra/main/eu-central-1
-terragrunt run-all apply
-```
-
-**Note:** This will deploy everything but may fail on first run due to dependencies. Run again if needed.
+</details>
 
 ---
 
