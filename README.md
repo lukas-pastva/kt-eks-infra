@@ -316,7 +316,7 @@ kt-eks-infra/
 - S3 and KMS VPC endpoints
 
 ### EKS Cluster
-- EKS 1.28 with private + public endpoint
+- EKS 1.31 with private + public endpoint
 - 3 managed node groups (Bottlerocket OS)
 - CoreDNS, kube-proxy, VPC CNI addons
 - Secrets encrypted with KMS

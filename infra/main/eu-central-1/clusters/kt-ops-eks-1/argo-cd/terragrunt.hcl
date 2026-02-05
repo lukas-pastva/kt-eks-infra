@@ -22,7 +22,6 @@ terraform {
 
 locals {
   component_values          = yamldecode(file("${find_in_parent_folders("component_values.yaml")}"))
-  argocd_fqdn               = local.component_values["argocd_config"]["argocd_fqdn"]
   argocd_helmchart_versions = local.component_values["argocd_config"]["argocd_helmchart_versions"]
 }
 
@@ -58,26 +57,8 @@ inputs = {
     namespace        = "argo-cd"
     timeout          = "1200"
     create_namespace = true
-    values           = [
-      templatefile("values.yaml", {
-        "argocd_fqdn"          = local.argocd_fqdn
-        "allowed_cidr"         = "${join(",", concat(include.root.locals.public_trusted_access_cidrs))},127.0.0.1/32",
-        "kms_access_role_arn"  = "",
-        "argocd_git_token"     = "",
-        "full_name"            = include.root.locals.full_name
-      })
-    ]
+    values           = [file("values.yaml")]
   }
-  argocd_applications = {
-    root-argo = {
-      path               = "${dependency.eks.outputs.cluster_name}/chart"
-      repo_url           = "https://github.com/helm/argo-cd-observability-cluster.git"
-      project            = "default"
-      target_revision    = "main"
-      add_on_application = true
-    }
-  }
-
   tags = merge(
     include.root.locals.custom_tags
   )

@@ -1,71 +1,50 @@
 ---
 fullnameOverride: "argo-cd"
-global:
-  securityContext:
-    runAsNonRoot: true
-    runAsUser: 999
-controller:
-  containerSecurityContext:
-    allowPrivilegeEscalation: false
-  replica: 1
-dex:
-  containerSecurityContext:
-    allowPrivilegeEscalation: false
-redis:
-  containerSecurityContext:
-    allowPrivilegeEscalation: false
-repoServer:
-  replicas: 1
-  containerSecurityContext:
-    allowPrivilegeEscalation: false
-  serviceAccount:
-    automountServiceAccountToken: true
-    annotations:
-      eks.amazonaws.com/role-arn: ${kms_access_role_arn}
 server:
-  replicas: 1
-  containerSecurityContext:
-    allowPrivilegeEscalation: false
-#  certificate:
-#    enabled: true
-#    domain: ${argocd_fqdn}
-#    issuer:
-#      kind: ClusterIssuer
-#      name: letsencrypt
-#    additionalHosts: []
-#    secretName: argocd-server-tls
-#  ingress:
-#    enabled: true
-#    https: true
-#    hosts:
-#      - ${argocd_fqdn}
-#    ingressClassName: nginx
-#    annotations:
-#      cert-manager.io/cluster-issuer: letsencrypt
-#      kubernetes.io/ingress.class: nginx
-#      kubernetes.io/tls-acme: "true"
-#      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-#      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-#      nginx.ingress.kubernetes.io/whitelist-source-range: ${allowed_cidr}
-#    tls:
-#      - secretName: argocd-ingress-tls
-#        hosts:
-#          - ${argocd_fqdn}
-  config:
-    accounts.image-updater: apiKey
-    accounts.github-runner: login
-    helm.valuesFileSchemes: https, http
-    url: https://${argocd_fqdn}
-
+  ingress:
+    enabled: true
+    hostname: argocd.jamf.fun
+    tls: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
 configs:
-  credentialTemplates:
-    argo-apps-creds:
-      url: https://github.com/lukas-pastva/kt-eks-gitops
-      username: lpastva
-      password: "${argocd_git_token}"
-  repositories:
-    argo-apps:
-      name: argo-apps
-      url: https://github.com/lukas-pastva/kt-eks-gitops
-      project: "${full_name}"
-      type: git
+  params:
+    server.insecure: true
+  cm:
+    exec.enabled: true
+extraObjects:
+  - apiVersion: argoproj.io/v1alpha1
+    kind: AppProject
+    metadata:
+      name: default
+      namespace: argocd
+    spec:
+      clusterResourceWhitelist:
+      - group: '*'
+        kind: '*'
+      description: default project
+      destinations:
+      - namespace: '*'
+        server: '*'
+      orphanedResources:
+        warn: true
+      sourceRepos:
+      - '*'
+  - apiVersion: argoproj.io/v1alpha1
+    kind: Application
+    metadata:
+      name: app-of-apps
+      namespace: argocd
+    spec:
+      project: default
+      source:
+        repoURL: git@github.com:lukas-pastva/kt-eks-gitops.git
+        path: charts/internal/app-of-apps
+        targetRevision: main
+        helm:
+          valueFiles:
+          - ../../../clusters/cluster-kt-ops-eks-1/applications.yaml
+      destination:
+        namespace: argocd
+        name: in-cluster
