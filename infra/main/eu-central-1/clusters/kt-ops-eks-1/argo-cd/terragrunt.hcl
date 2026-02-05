@@ -50,14 +50,15 @@ inputs = {
 
   enable_argocd      = true
   argocd_helm_config = {
-    name             = "argo-cd"
-    chart            = "argo-cd"
-    repository       = "https://argoproj.github.io/argo-helm"
-    version          = local.argocd_helmchart_versions
-    namespace        = "argo-cd"
-    timeout          = "1200"
-    create_namespace = true
-    values           = [file("values.yaml")]
+    name                       = "argo-cd"
+    chart                      = "argo-cd"
+    repository                 = "https://argoproj.github.io/argo-helm"
+    version                    = local.argocd_helmchart_versions
+    namespace                  = "argo-cd"
+    timeout                    = "1200"
+    create_namespace           = true
+    disable_openapi_validation = true
+    values                     = [file("values.yaml")]
   }
   tags = merge(
     include.root.locals.custom_tags
