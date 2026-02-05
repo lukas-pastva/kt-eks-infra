@@ -18,7 +18,6 @@ locals {
   )
   full_name                   = "${local.merged.prefix}-${local.merged.env}-${local.merged.name}"
   public_trusted_access_cidrs = yamldecode(file("${find_in_parent_folders("global_values.yaml")}"))["public_trusted_access_cidrs"]
-  vpc_nat_eip                 = yamldecode(file("${find_in_parent_folders("global_values.yaml")}"))["vpc_nat_eip"]
 }
 
 remote_state {

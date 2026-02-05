@@ -3,13 +3,10 @@ env: ""
 name: ""
 
 provider: aws
-prefix: ts
+prefix: kt
 tf_state_bucket_region: eu-central-1
 public_trusted_access_cidrs: [
-  '80.94.55.14/32', # home
-]
-vpc_nat_eip: [
-  54.228.148.125/32 # Dev cluster NAT EIP
+  '80.94.55.80/32', # home lab
 ]
 
 # ip plan
