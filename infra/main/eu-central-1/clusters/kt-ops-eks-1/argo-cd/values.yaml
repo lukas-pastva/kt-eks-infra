@@ -22,39 +22,6 @@ repoServer:
     automountServiceAccountToken: true
     annotations:
       eks.amazonaws.com/role-arn: ${kms_access_role_arn}
-  env:
-    - name: HELM_PLUGINS
-      value: /custom-tools/helm-plugins/
-    - name: HELM_SECRETS_HELM_PATH
-      value: /usr/local/bin/helm
-    - name: HELM_SECRETS_SOPS_PATH
-      value: /custom-tools/sops
-    - name: HELM_SECRETS_KUBECTL_PATH
-      value: /custom-tools/kubectl
-  volumes:
-    - name: custom-tools
-      emptyDir: {}
-  volumeMounts:
-    - mountPath: /custom-tools
-      name: custom-tools
-  initContainers:
-    - name: download-tools
-      securityContext:
-        allowPrivilegeEscalation: false
-      image: alpine:latest
-      command: [sh, -ec]
-      args:
-        - |
-          mkdir -p /custom-tools/helm-plugins
-          wget -qO- https://github.com/jkroepke/helm-secrets/releases/download/v${helm_secrets_version}/helm-secrets.tar.gz | tar -C /custom-tools/helm-plugins -xzf-;
-
-          wget -qO /custom-tools/sops https://github.com/mozilla/sops/releases/download/v${sops_version}/sops-v${sops_version}.linux
-          wget -qO /custom-tools/kubectl https://dl.k8s.io/release/v${kubectl_version}/bin/linux/amd64/kubectl
-
-          chmod +x /custom-tools/*
-      volumeMounts:
-        - mountPath: /custom-tools
-          name: custom-tools
 server:
   replicas: 1
   containerSecurityContext:
@@ -87,7 +54,7 @@ server:
   config:
     accounts.image-updater: apiKey
     accounts.github-runner: login
-    helm.valuesFileSchemes:  secrets, https, http
+    helm.valuesFileSchemes: https, http
     url: https://${argocd_fqdn}
 
 configs:

@@ -4,20 +4,6 @@ include "root" {
   merge_strategy = "deep"
 }
 
-dependency "kms-role" {
-  config_path = "${get_original_terragrunt_dir()}/../iam/roles/argo-sops-kms"
-
-  mock_outputs = {
-    iam_role_arn = "arn::::::"
-  }
-}
-dependency "kms" {
-  config_path  = "${get_original_terragrunt_dir()}/../kms/argo-sops-kms"
-  mock_outputs = {
-    kms_key_arn = "arn::::::",
-    key_arn     = "arn::::::"
-  }
-}
 dependency "eks" {
   config_path = "${get_original_terragrunt_dir()}/../eks"
 
@@ -37,9 +23,6 @@ terraform {
 locals {
   component_values          = yamldecode(file("${find_in_parent_folders("component_values.yaml")}"))
   argocd_fqdn               = local.component_values["argocd_config"]["argocd_fqdn"]
-  helm_secrets_version      = local.component_values["argocd_config"]["helm_secrets_version"]
-  sops_version              = local.component_values["argocd_config"]["sops_version"]
-  kubectl_version           = local.component_values["argocd_config"]["kubectl_version"]
   argocd_helmchart_versions = local.component_values["argocd_config"]["argocd_helmchart_versions"]
 }
 
@@ -78,11 +61,8 @@ inputs = {
     values           = [
       templatefile("values.yaml", {
         "argocd_fqdn"          = local.argocd_fqdn
-        "helm_secrets_version" = local.helm_secrets_version,
-        "sops_version"         = local.sops_version,
-        "kubectl_version"      = local.kubectl_version,
         "allowed_cidr"         = "${join(",", concat(include.root.locals.public_trusted_access_cidrs))},127.0.0.1/32",
-        "kms_access_role_arn"  = dependency.kms-role.outputs.iam_role_arn,
+        "kms_access_role_arn"  = "",
         "argocd_git_token"     = "",
         "full_name"            = include.root.locals.full_name
       })

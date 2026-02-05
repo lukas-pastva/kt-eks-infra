@@ -229,7 +229,6 @@ cd infra/main/eu-central-1/clusters/kt-ops-eks-1
 # Layer 0 - No dependencies (can run in parallel)
 tga encryption-config/
 tga kms/infra-sops-kms/
-tga kms/argo-sops-kms/
 tga iam/policy/cluster-autoscaler/
 tga iam/policy/aws-load-balancer-controller/
 tga iam/policy/exporter-cloudwatch/
@@ -238,7 +237,6 @@ tga route53/zones/jamf.fun/
 
 # Layer 1 - Depends on Layer 0
 tga vpc/                                     # depends on datasources
-tga iam/policy/argo-sops-kms/                # depends on kms/argo-sops-kms
 
 # Layer 2 - Depends on Layer 1
 tga vpc-endpoints/                           # depends on vpc
@@ -252,11 +250,10 @@ tga iam/roles/cluster-autoscaler/            # depends on iam/policy + eks
 tga iam/roles/aws-load-balancer-controller/  # depends on iam/policy + eks
 tga iam/roles/exporter-cloudwatch/           # depends on iam/policy + eks
 tga iam/roles/external-dns/                  # depends on iam/policy + eks
-tga iam/roles/argo-sops-kms/                 # depends on iam/policy + eks
 
 # Layer 4 - Depends on Layer 3
 tga karpenter/helm/                          # depends on eks + karpenter/infra
-tga argo-cd/                                 # depends on iam/roles/argo-sops-kms + kms + eks
+tga argo-cd/                                 # depends on eks
 ```
 
 **Important:** IAM policies must be applied before their corresponding roles.
