@@ -179,7 +179,20 @@ File: `infra/main/eu-central-1/clusters/kt-ops-eks-1/component_values.yaml`
 
 ---
 
-## Step 6: Deploy Infrastructure
+## Step 6: Deploy Route53 (Do This First!)
+
+Deploy Route53 first - DNS propagation takes time, so set up NS records early:
+
+```powershell
+cd C:\git\git.jamf\kt-eks-infra\infra\main\eu-central-1\clusters\kt-ops-eks-1\route53\zones\jamf.fun
+terragrunt apply
+```
+
+Copy the 4 nameservers from the output and add them to your domain registrar now.
+
+---
+
+## Step 7: Deploy Infrastructure
 
 **Recommended:** Deploy everything at once - Terragrunt handles dependencies automatically:
 
@@ -234,16 +247,12 @@ terragrunt apply
 cd ../../eks-addons-helper
 terragrunt apply
 
-# 10. Deploy Route53 zones (if using custom domain)
-cd ../route53/zones
-terragrunt apply
-
-# 11. Deploy IAM roles for service accounts
+# 10. Deploy IAM roles for service accounts
 cd ../iam/roles/aws-load-balancer-controller
 terragrunt apply
 # Repeat for other roles in iam/roles/
 
-# 12. Deploy ArgoCD (if using GitOps)
+# 11. Deploy ArgoCD (if using GitOps)
 cd ../../argo-cd
 terragrunt apply
 ```
