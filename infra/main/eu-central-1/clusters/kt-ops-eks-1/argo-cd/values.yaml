@@ -18,7 +18,7 @@ extraObjects:
     kind: AppProject
     metadata:
       name: default
-      namespace: argocd
+      namespace: argo-cd
     spec:
       clusterResourceWhitelist:
       - group: '*'
@@ -35,7 +35,7 @@ extraObjects:
     kind: Application
     metadata:
       name: app-of-apps
-      namespace: argocd
+      namespace: argo-cd
     spec:
       project: default
       source:
@@ -46,5 +46,5 @@ extraObjects:
           valueFiles:
           - ../../../clusters/cluster-kt-ops-eks-1/applications.yaml
       destination:
-        namespace: argocd
+        namespace: argo-cd
         name: in-cluster
