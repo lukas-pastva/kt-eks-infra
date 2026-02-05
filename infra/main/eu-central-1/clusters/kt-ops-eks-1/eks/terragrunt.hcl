@@ -243,7 +243,8 @@ inputs = {
     capacity_type                = "SPOT"
     platform                     = "bottlerocket"
     iam_role_additional_policies = {
-      AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+      AmazonSSMManagedInstanceCore                = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+      AmazonElasticFileSystemClientReadWriteAccess = "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientReadWriteAccess"
     }
     taints = [
       {
