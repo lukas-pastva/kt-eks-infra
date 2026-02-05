@@ -1,5 +1,4 @@
 ---
-fullnameOverride: "argo-cd"
 server:
   ingress:
     enabled: true
