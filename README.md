@@ -20,20 +20,34 @@ AWS EKS Infrastructure as Code using Terragrunt.
 
 ## Prerequisites
 
-Install these tools on your machine:
+This project requires a Linux/macOS environment (on Windows, use WSL). Upstream modules use symlinks that don't work on NTFS.
 
-```powershell
-# Install via Chocolatey (run as Administrator)
-choco install awscli -y
-choco install terraform -y
-choco install terragrunt -y
-choco install kubectl -y
+Install these tools:
+
+```bash
+# OpenTofu
+curl --proto '=https' --tlsv1.2 -fsSL https://get.opentofu.org/install-opentofu.sh -o install-opentofu.sh
+chmod +x install-opentofu.sh && ./install-opentofu.sh --install-method deb && rm install-opentofu.sh
+
+# Terragrunt v0.63.6
+curl -L "https://github.com/gruntwork-io/terragrunt/releases/download/v0.63.6/terragrunt_linux_amd64" -o /usr/local/bin/terragrunt
+chmod +x /usr/local/bin/terragrunt
+
+# AWS CLI, kubectl
+apt-get install -y awscli kubectl
+```
+
+Enable provider caching (avoids re-downloading `hashicorp/aws` for every module):
+```bash
+echo 'export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"' >> ~/.bashrc
+mkdir -p "$HOME/.terraform.d/plugin-cache"
+source ~/.bashrc
 ```
 
 Verify installations:
-```powershell
+```bash
 aws --version
-terraform --version
+tofu --version
 terragrunt --version
 kubectl version --client
 ```
@@ -42,7 +56,7 @@ kubectl version --client
 
 ## Step 1: Configure AWS CLI
 
-```powershell
+```bash
 aws configure
 ```
 
@@ -88,7 +102,7 @@ Enter:
 </details>
 
 Verify access:
-```powershell
+```bash
 aws sts get-caller-identity
 ```
 
@@ -96,7 +110,7 @@ aws sts get-caller-identity
 
 ## Step 2: Create S3 Bucket for Terraform State
 
-```powershell
+```bash
 # Create the bucket
 aws s3api create-bucket --bucket sw-tronic-sk-tg-state-store --region eu-central-1 --create-bucket-configuration LocationConstraint=eu-central-1
 
@@ -104,27 +118,27 @@ aws s3api create-bucket --bucket sw-tronic-sk-tg-state-store --region eu-central
 aws s3api put-bucket-versioning --bucket sw-tronic-sk-tg-state-store --versioning-configuration Status=Enabled
 
 # Enable server-side encryption
-aws s3api put-bucket-encryption --bucket sw-tronic-sk-tg-state-store --server-side-encryption-configuration '{\"Rules\":[{\"ApplyServerSideEncryptionByDefault\":{\"SSEAlgorithm\":\"AES256\"},\"BucketKeyEnabled\":true}]}'
+aws s3api put-bucket-encryption --bucket sw-tronic-sk-tg-state-store --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"},"BucketKeyEnabled":true}]}'
 
 # Block public access
-aws s3api put-public-access-block --bucket sw-tronic-sk-tg-state-store --public-access-block-configuration '{\"BlockPublicAcls\":true,\"IgnorePublicAcls\":true,\"BlockPublicPolicy\":true,\"RestrictPublicBuckets\":true}'
+aws s3api put-public-access-block --bucket sw-tronic-sk-tg-state-store --public-access-block-configuration '{"BlockPublicAcls":true,"IgnorePublicAcls":true,"BlockPublicPolicy":true,"RestrictPublicBuckets":true}'
 ```
 
 ---
 
 ## Step 3: Create DynamoDB Table for State Locking
 
-```powershell
-aws dynamodb create-table `
-    --table-name sw-tronic-sk-tg-state-lock `
-    --attribute-definitions AttributeName=LockID,AttributeType=S `
-    --key-schema AttributeName=LockID,KeyType=HASH `
-    --billing-mode PAY_PER_REQUEST `
+```bash
+aws dynamodb create-table \
+    --table-name sw-tronic-sk-tg-state-lock \
+    --attribute-definitions AttributeName=LockID,AttributeType=S \
+    --key-schema AttributeName=LockID,KeyType=HASH \
+    --billing-mode PAY_PER_REQUEST \
     --region eu-central-1
 ```
 
 Verify table creation:
-```powershell
+```bash
 aws dynamodb describe-table --table-name sw-tronic-sk-tg-state-lock --region eu-central-1
 ```
 
@@ -134,7 +148,7 @@ aws dynamodb describe-table --table-name sw-tronic-sk-tg-state-lock --region eu-
 
 These roles are required for EKS and Auto Scaling but don't exist in a fresh AWS account:
 
-```powershell
+```bash
 # Required for KMS encryption on Auto Scaling nodes
 aws iam create-service-linked-role --aws-service-name autoscaling.amazonaws.com
 
@@ -161,7 +175,7 @@ aws_account_id: "YOUR_AWS_ACCOUNT_ID"  # Replace with your account ID
 ```
 
 Get your account ID:
-```powershell
+```bash
 aws sts get-caller-identity --query Account --output text
 ```
 
@@ -183,8 +197,8 @@ File: `infra/main/eu-central-1/clusters/kt-ops-eks-1/component_values.yaml`
 
 Deploy Route53 first - DNS propagation takes time, so set up NS records early:
 
-```powershell
-cd C:\git\git.jamf\kt-eks-infra\infra\main\eu-central-1\clusters\kt-ops-eks-1\route53\zones\jamf.fun
+```bash
+cd infra/main/eu-central-1/clusters/kt-ops-eks-1/route53/zones/jamf.fun
 terragrunt apply
 ```
 
@@ -196,8 +210,8 @@ Copy the 4 nameservers from the output and add them to your domain registrar now
 
 **Recommended:** Deploy everything at once - Terragrunt handles dependencies automatically:
 
-```powershell
-cd C:\git\git.jamf\kt-eks-infra\infra\main\eu-central-1
+```bash
+cd infra/main/eu-central-1
 terragrunt run-all apply
 ```
 
@@ -206,56 +220,46 @@ This will deploy all components in the correct order based on the `dependency` b
 <details>
 <summary><strong>Manual step-by-step deployment (click to expand)</strong></summary>
 
-If you prefer to deploy components one by one (for debugging or understanding):
+If you prefer to deploy components one by one (for debugging or understanding).
+Items on the same layer can be applied in parallel.
 
-```powershell
-cd C:\git\git.jamf\kt-eks-infra
+```bash
+cd infra/main/eu-central-1/clusters/kt-ops-eks-1
 
-# 1. Deploy datasources (AWS region/AZ data)
-cd infra/main/eu-central-1/datasources
-terragrunt apply
+# Layer 0 - No dependencies (can run in parallel)
+tga encryption-config/
+tga kms/infra-sops-kms/
+tga kms/argo-sops-kms/
+tga iam/policy/cluster-autoscaler/
+tga iam/policy/aws-load-balancer-controller/
+tga iam/policy/exporter-cloudwatch/
+tga iam/policy/external-dns/
+tga route53/zones/jamf.fun/
 
-# 2. Deploy VPC
-cd ../clusters/kt-ops-eks-1/vpc
-terragrunt apply
+# Layer 1 - Depends on Layer 0
+tga vpc/                                     # depends on datasources
+tga iam/policy/argo-sops-kms/                # depends on kms/argo-sops-kms
 
-# 3. Deploy KMS keys for encryption
-cd ../encryption-config
-terragrunt apply
+# Layer 2 - Depends on Layer 1
+tga vpc-endpoints/                           # depends on vpc
+tga eks/                                     # depends on vpc + encryption-config
 
-# 4. Deploy EKS cluster
-cd ../eks
-terragrunt apply
+# Layer 3 - Depends on Layer 2 (can run in parallel)
+tga eks-addons-critical/                     # depends on vpc + eks
+tga karpenter/infra/                         # depends on eks
+tga eks-addons-helper/                       # depends on eks
+tga iam/roles/cluster-autoscaler/            # depends on iam/policy + eks
+tga iam/roles/aws-load-balancer-controller/  # depends on iam/policy + eks
+tga iam/roles/exporter-cloudwatch/           # depends on iam/policy + eks
+tga iam/roles/external-dns/                  # depends on iam/policy + eks
+tga iam/roles/argo-sops-kms/                 # depends on iam/policy + eks
 
-# 5. Deploy VPC endpoints
-cd ../vpc-endpoints
-terragrunt apply
-
-# 6. Deploy critical addons (EBS CSI driver)
-cd ../eks-addons-critical
-terragrunt apply
-
-# 7. Deploy Karpenter infrastructure
-cd ../karpenter/infra
-terragrunt apply
-
-# 8. Deploy Karpenter Helm chart
-cd ../helm
-terragrunt apply
- 
-# 9. Deploy helper addons
-cd ../../eks-addons-helper
-terragrunt apply
-
-# 10. Deploy IAM roles for service accounts
-cd ../iam/roles/aws-load-balancer-controller
-terragrunt apply
-# Repeat for other roles in iam/roles/
-
-# 11. Deploy ArgoCD (if using GitOps)
-cd ../../argo-cd
-terragrunt apply
+# Layer 4 - Depends on Layer 3
+tga karpenter/helm/                          # depends on eks + karpenter/infra
+tga argo-cd/                                 # depends on iam/roles/argo-sops-kms + kms + eks
 ```
+
+**Important:** IAM policies must be applied before their corresponding roles.
 
 </details>
 
@@ -265,12 +269,12 @@ terragrunt apply
 
 After EKS is deployed:
 
-```powershell
+```bash
 aws eks update-kubeconfig --name kt-ops-eks-1 --region eu-central-1
 ```
 
 Verify connection:
-```powershell
+```bash
 kubectl get nodes
 kubectl get pods -A
 ```
@@ -338,15 +342,18 @@ kt-eks-infra/
 
 ## Common Commands
 
-```powershell
+```bash
 # Plan changes
-terragrunt plan
+tgp
 
 # Apply changes
-terragrunt apply
+tga
 
 # Destroy resources
-terragrunt destroy
+tgd
+
+# Apply specific directory
+tga ../some/path/
 
 # Apply all in directory tree
 terragrunt run-all apply
@@ -360,10 +367,51 @@ terragrunt refresh
 
 ---
 
+## Bash aliases
+
+Add to `~/.bashrc`:
+```bash
+tga() {
+  if [ -n "$1" ]; then
+    (cd "$1" && terragrunt apply)
+  else
+    terragrunt apply
+  fi
+}
+
+tgd() {
+  if [ -n "$1" ]; then
+    (cd "$1" && terragrunt destroy)
+  else
+    terragrunt destroy
+  fi
+}
+
+tgp() {
+  if [ -n "$1" ]; then
+    (cd "$1" && terragrunt plan)
+  else
+    terragrunt plan
+  fi
+}
+
+tgi() {
+  if [ -n "$1" ]; then
+    (cd "$1" && terragrunt init)
+  else
+    terragrunt init
+  fi
+}
+```
+
+Then run `source ~/.bashrc`. Usage: `tga` (current dir) or `tga ../some/path/` (specific dir).
+
+---
+
 ## Troubleshooting
 
 ### State Lock Error
-```powershell
+```bash
 # Force unlock (use with caution)
 terragrunt force-unlock LOCK_ID
 ```
@@ -373,7 +421,7 @@ S3 bucket names are globally unique. Change `sw-tronic-sk-tg-state-store` to a u
 - `infra/main/terragrunt.hcl`
 
 ### EKS Auth Issues
-```powershell
+```bash
 # Update kubeconfig
 aws eks update-kubeconfig --name kt-ops-eks-1 --region eu-central-1
 
@@ -387,13 +435,13 @@ aws eks describe-cluster --name kt-ops-eks-1 --region eu-central-1
 
 To destroy all resources (in reverse order):
 
-```powershell
+```bash
 cd infra/main/eu-central-1
 terragrunt run-all destroy
 ```
 
 Then manually delete:
-```powershell
+```bash
 # Delete state bucket (must be empty first)
 aws s3 rb s3://sw-tronic-sk-tg-state-store --force
 

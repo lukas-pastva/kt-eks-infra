@@ -35,9 +35,6 @@ terraform {
 }
 
 locals {
-  secrets-store    = yamldecode(sops_decrypt_file("${find_in_parent_folders("cluster_secrets.yaml")}"))
-  argocd_git_token = local.secrets-store.argocd_git_token
-
   component_values          = yamldecode(file("${find_in_parent_folders("component_values.yaml")}"))
   argocd_fqdn               = local.component_values["argocd_config"]["argocd_fqdn"]
   helm_secrets_version      = local.component_values["argocd_config"]["helm_secrets_version"]
@@ -86,7 +83,7 @@ inputs = {
         "kubectl_version"      = local.kubectl_version,
         "allowed_cidr"         = "${join(",", concat(include.root.locals.public_trusted_access_cidrs))},127.0.0.1/32",
         "kms_access_role_arn"  = dependency.kms-role.outputs.iam_role_arn,
-        "argocd_git_token"     = local.argocd_git_token,
+        "argocd_git_token"     = "",
         "full_name"            = include.root.locals.full_name
       })
     ]
