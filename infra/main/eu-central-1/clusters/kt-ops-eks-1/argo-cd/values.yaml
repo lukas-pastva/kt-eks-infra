@@ -13,38 +13,39 @@ configs:
     server.insecure: true
   cm:
     exec.enabled: true
-extraObjects:
-  - apiVersion: argoproj.io/v1alpha1
-    kind: AppProject
-    metadata:
-      name: default
-      namespace: argo-cd
-    spec:
-      clusterResourceWhitelist:
-      - group: '*'
-        kind: '*'
-      description: default project
-      destinations:
-      - namespace: '*'
-        server: '*'
-      orphanedResources:
-        warn: true
-      sourceRepos:
-      - '*'
-  - apiVersion: argoproj.io/v1alpha1
-    kind: Application
-    metadata:
-      name: app-of-apps
-      namespace: argo-cd
-    spec:
-      project: default
-      source:
-        repoURL: git@github.com:lukas-pastva/kt-eks-gitops.git
-        path: charts/internal/app-of-apps
-        targetRevision: main
-        helm:
-          valueFiles:
-          - ../../../clusters/cluster-kt-ops-eks-1/applications.yaml
-      destination:
-        namespace: argo-cd
-        name: in-cluster
+# STEP 2: Uncomment after first successful deploy (CRDs must exist first)
+# extraObjects:
+#   - apiVersion: argoproj.io/v1alpha1
+#     kind: AppProject
+#     metadata:
+#       name: default
+#       namespace: argo-cd
+#     spec:
+#       clusterResourceWhitelist:
+#       - group: '*'
+#         kind: '*'
+#       description: default project
+#       destinations:
+#       - namespace: '*'
+#         server: '*'
+#       orphanedResources:
+#         warn: true
+#       sourceRepos:
+#       - '*'
+#   - apiVersion: argoproj.io/v1alpha1
+#     kind: Application
+#     metadata:
+#       name: app-of-apps
+#       namespace: argo-cd
+#     spec:
+#       project: default
+#       source:
+#         repoURL: git@github.com:lukas-pastva/kt-eks-gitops.git
+#         path: charts/internal/app-of-apps
+#         targetRevision: main
+#         helm:
+#           valueFiles:
+#           - ../../../clusters/cluster-kt-ops-eks-1/applications.yaml
+#       destination:
+#         namespace: argo-cd
+#         name: in-cluster
