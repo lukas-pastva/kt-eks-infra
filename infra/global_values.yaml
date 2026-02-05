@@ -1,0 +1,18 @@
+---
+env: ""
+name: ""
+
+provider: aws
+prefix: ts
+tf_state_bucket_region: eu-central-1
+public_trusted_access_cidrs: [
+  '80.94.55.14/32', # home
+]
+vpc_nat_eip: [
+  54.228.148.125/32 # Dev cluster NAT EIP
+]
+
+# ip plan
+ip_addressing_plan:
+  kt-ops-eks-1:
+    vpc_cidr: '10.240.64.0/21'

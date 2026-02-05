@@ -1,0 +1,29 @@
+---
+name: eks-1
+cluster_version: 1.28
+
+cluster_logs:
+#  - api
+#  - audit
+  - authenticator
+#  - controllerManager
+#  - scheduler
+cloudwatch_log_group_retention_in_days: 60
+
+cluster_admin_role: arn:aws:iam::400528358945:role/AWSReservedSSO_AWSAdministratorAccess_a312ae45290a75bb
+terraform_admin_role: arn:aws:iam::400528358945:role/terraform
+
+aws_account_admin_role:
+  - arn:aws:iam::400528358945:role/aws-reserved/sso.amazonaws.com/eu-west-1/AWSReservedSSO_AWSAdministratorAccess_a312ae45290a75bb
+  - arn:aws:iam::400528358945:role/terraform
+
+argocd_config:
+  argocd_fqdn: argocd.jamf.fun
+  helm_secrets_version: 4.2.2
+  sops_version: 3.9.4
+  kubectl_version: 1.28.0
+  argocd_helmchart_versions: 9.4.0
+  inital_app_target_revision: main
+
+cluster_external_dns_domain_filter:
+  - jamf.fun

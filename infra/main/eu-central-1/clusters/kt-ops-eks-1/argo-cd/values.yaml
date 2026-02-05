@@ -1,0 +1,104 @@
+---
+fullnameOverride: "argo-cd"
+global:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+controller:
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+  replica: 1
+dex:
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+redis:
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+repoServer:
+  replicas: 1
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+  serviceAccount:
+    automountServiceAccountToken: true
+    annotations:
+      eks.amazonaws.com/role-arn: ${kms_access_role_arn}
+  env:
+    - name: HELM_PLUGINS
+      value: /custom-tools/helm-plugins/
+    - name: HELM_SECRETS_HELM_PATH
+      value: /usr/local/bin/helm
+    - name: HELM_SECRETS_SOPS_PATH
+      value: /custom-tools/sops
+    - name: HELM_SECRETS_KUBECTL_PATH
+      value: /custom-tools/kubectl
+  volumes:
+    - name: custom-tools
+      emptyDir: {}
+  volumeMounts:
+    - mountPath: /custom-tools
+      name: custom-tools
+  initContainers:
+    - name: download-tools
+      securityContext:
+        allowPrivilegeEscalation: false
+      image: alpine:latest
+      command: [sh, -ec]
+      args:
+        - |
+          mkdir -p /custom-tools/helm-plugins
+          wget -qO- https://github.com/jkroepke/helm-secrets/releases/download/v${helm_secrets_version}/helm-secrets.tar.gz | tar -C /custom-tools/helm-plugins -xzf-;
+
+          wget -qO /custom-tools/sops https://github.com/mozilla/sops/releases/download/v${sops_version}/sops-v${sops_version}.linux
+          wget -qO /custom-tools/kubectl https://dl.k8s.io/release/v${kubectl_version}/bin/linux/amd64/kubectl
+
+          chmod +x /custom-tools/*
+      volumeMounts:
+        - mountPath: /custom-tools
+          name: custom-tools
+server:
+  replicas: 1
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+#  certificate:
+#    enabled: true
+#    domain: ${argocd_fqdn}
+#    issuer:
+#      kind: ClusterIssuer
+#      name: letsencrypt
+#    additionalHosts: []
+#    secretName: argocd-server-tls
+#  ingress:
+#    enabled: true
+#    https: true
+#    hosts:
+#      - ${argocd_fqdn}
+#    ingressClassName: nginx
+#    annotations:
+#      cert-manager.io/cluster-issuer: letsencrypt
+#      kubernetes.io/ingress.class: nginx
+#      kubernetes.io/tls-acme: "true"
+#      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+#      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+#      nginx.ingress.kubernetes.io/whitelist-source-range: ${allowed_cidr}
+#    tls:
+#      - secretName: argocd-ingress-tls
+#        hosts:
+#          - ${argocd_fqdn}
+  config:
+    accounts.image-updater: apiKey
+    accounts.github-runner: login
+    helm.valuesFileSchemes:  secrets, https, http
+    url: https://${argocd_fqdn}
+
+configs:
+  credentialTemplates:
+    argo-apps-creds:
+      url: https://github.com/lukas-pastva/kt-eks-gitops
+      username: lpastva
+      password: "${argocd_git_token}"
+  repositories:
+    argo-apps:
+      name: argo-apps
+      url: https://github.com/lukas-pastva/kt-eks-gitops
+      project: "${full_name}"
+      type: git
