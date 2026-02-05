@@ -10,7 +10,7 @@ terraform {
 
 locals {
   component_values   = yamldecode(file("${find_in_parent_folders("component_values.yaml")}"))
-  key_administrators = local.component_values["aws_account_admin_role"]
+  key_administrators = local.component_values["aws_account_admin_user"]
   name               = "${include.root.locals.full_name}-${basename(get_terragrunt_dir())}"
 }
 

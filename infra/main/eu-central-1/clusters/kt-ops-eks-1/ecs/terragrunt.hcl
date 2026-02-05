@@ -18,7 +18,7 @@ dependency "vpc" {
 
 locals {
   component_values   = yamldecode(file("${find_in_parent_folders("component_values.yaml")}"))
-  cluster_admin_role = local.component_values["cluster_admin_role"]
+  cluster_admin_user = local.component_values["cluster_admin_user"]
 
 }
 

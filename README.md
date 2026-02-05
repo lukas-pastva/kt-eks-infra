@@ -9,8 +9,8 @@ AWS EKS Infrastructure as Code using Terragrunt.
 | Setting | Value |
 |---------|-------|
 | AWS Region | `eu-central-1` |
-| State Bucket | `tg-state-store` |
-| Lock Table | `tg-state-lock` |
+| State Bucket | `sw-tronic-sk-tg-state-store` |
+| Lock Table | `sw-tronic-sk-tg-state-lock` |
 | Cluster Name | `kt-ops-eks-1` |
 | Kubernetes Version | `1.28` |
 | VPC CIDR | `10.240.64.0/21` |
@@ -52,6 +52,41 @@ Enter:
 - Default region: `eu-central-1`
 - Default output format: `json`
 
+<details>
+<summary><strong>How to create AWS Access Keys (click to expand)</strong></summary>
+
+1. **Go to AWS Console**: https://console.aws.amazon.com
+
+2. **Go to IAM**:
+   - Search for "IAM" in the top search bar
+   - Click "IAM"
+
+3. **Create a new IAM user**:
+   - Click "Users" in the left sidebar
+   - Click "Create user"
+   - Username: `terraform-admin` (or any name)
+   - Click "Next"
+
+4. **Set permissions**:
+   - Select "Attach policies directly"
+   - Check `AdministratorAccess`
+   - Click "Next" → "Create user"
+
+5. **Create access keys**:
+   - Click on the user you just created
+   - Go to "Security credentials" tab
+   - Scroll to "Access keys" → Click "Create access key"
+   - Select "Command Line Interface (CLI)"
+   - Check the confirmation box
+   - Click "Next" → "Create access key"
+
+6. **Save the keys**:
+   - Copy **Access key ID**
+   - Copy **Secret access key** (click "Show")
+   - **Save these now** - you can't see the secret again!
+
+</details>
+
 Verify access:
 ```powershell
 aws sts get-caller-identity
@@ -63,39 +98,16 @@ aws sts get-caller-identity
 
 ```powershell
 # Create the bucket
-aws s3api create-bucket `
-    --bucket tg-state-store `
-    --region eu-central-1 `
-    --create-bucket-configuration LocationConstraint=eu-central-1
+aws s3api create-bucket --bucket sw-tronic-sk-tg-state-store --region eu-central-1 --create-bucket-configuration LocationConstraint=eu-central-1
 
-# Enable versioning (recommended for state recovery)
-aws s3api put-bucket-versioning `
-    --bucket tg-state-store `
-    --versioning-configuration Status=Enabled
+# Enable versioning
+aws s3api put-bucket-versioning --bucket sw-tronic-sk-tg-state-store --versioning-configuration Status=Enabled
 
 # Enable server-side encryption
-aws s3api put-bucket-encryption `
-    --bucket tg-state-store `
-    --server-side-encryption-configuration '{
-        "Rules": [
-            {
-                "ApplyServerSideEncryptionByDefault": {
-                    "SSEAlgorithm": "AES256"
-                },
-                "BucketKeyEnabled": true
-            }
-        ]
-    }'
+aws s3api put-bucket-encryption --bucket sw-tronic-sk-tg-state-store --server-side-encryption-configuration '{\"Rules\":[{\"ApplyServerSideEncryptionByDefault\":{\"SSEAlgorithm\":\"AES256\"},\"BucketKeyEnabled\":true}]}'
 
 # Block public access
-aws s3api put-public-access-block `
-    --bucket tg-state-store `
-    --public-access-block-configuration '{
-        "BlockPublicAcls": true,
-        "IgnorePublicAcls": true,
-        "BlockPublicPolicy": true,
-        "RestrictPublicBuckets": true
-    }'
+aws s3api put-public-access-block --bucket sw-tronic-sk-tg-state-store --public-access-block-configuration '{\"BlockPublicAcls\":true,\"IgnorePublicAcls\":true,\"BlockPublicPolicy\":true,\"RestrictPublicBuckets\":true}'
 ```
 
 ---
@@ -104,7 +116,7 @@ aws s3api put-public-access-block `
 
 ```powershell
 aws dynamodb create-table `
-    --table-name tg-state-lock `
+    --table-name sw-tronic-sk-tg-state-lock `
     --attribute-definitions AttributeName=LockID,AttributeType=S `
     --key-schema AttributeName=LockID,KeyType=HASH `
     --billing-mode PAY_PER_REQUEST `
@@ -113,7 +125,7 @@ aws dynamodb create-table `
 
 Verify table creation:
 ```powershell
-aws dynamodb describe-table --table-name tg-state-lock --region eu-central-1
+aws dynamodb describe-table --table-name sw-tronic-sk-tg-state-lock --region eu-central-1
 ```
 
 ---
@@ -137,13 +149,13 @@ aws sts get-caller-identity --query Account --output text
 ### 4.2 Update Global Values
 
 File: `infra/global_values.yaml`
-- Update `trusted_cidrs` with your IP addresses
-- Update `vpc_ip_plan` if needed
+- Update `public_trusted_access_cidrs` with your IP addresses
+- Update `ip_addressing_plan` if needed (VPC CIDR blocks)
 
 ### 4.3 Update Cluster Values
 
 File: `infra/main/eu-central-1/clusters/kt-ops-eks-1/component_values.yaml`
-- Update `cluster_admin_role_arns` with your IAM role ARNs
+- Update `cluster_admin_user` and `aws_account_admin_user` with your IAM user ARN
 - Update ArgoCD settings if using GitOps
 
 ---
@@ -324,7 +336,7 @@ terragrunt force-unlock LOCK_ID
 ```
 
 ### Bucket Already Exists
-S3 bucket names are globally unique. Change `tg-state-store` to a unique name in:
+S3 bucket names are globally unique. Change `sw-tronic-sk-tg-state-store` to a unique name in:
 - `infra/main/terragrunt.hcl`
 
 ### EKS Auth Issues
@@ -350,8 +362,8 @@ terragrunt run-all destroy
 Then manually delete:
 ```powershell
 # Delete state bucket (must be empty first)
-aws s3 rb s3://tg-state-store --force
+aws s3 rb s3://sw-tronic-sk-tg-state-store --force
 
 # Delete lock table
-aws dynamodb delete-table --table-name tg-state-lock --region eu-central-1
+aws dynamodb delete-table --table-name sw-tronic-sk-tg-state-lock --region eu-central-1
 ```

@@ -24,12 +24,12 @@ remote_state {
   backend = "s3"
 
   config = {
-    bucket  = "tg-state-store"
+    bucket  = "sw-tronic-sk-tg-state-store"
     key     = "${local.merged.provider}/${path_relative_to_include()}/terraform.tfstate"
     region  = local.merged.tf_state_bucket_region
     encrypt = true
 
-    dynamodb_table = "tg-state-lock"
+    dynamodb_table = "sw-tronic-sk-tg-state-lock"
   }
 
   generate = {

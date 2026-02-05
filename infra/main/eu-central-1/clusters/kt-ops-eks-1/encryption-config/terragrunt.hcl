@@ -10,7 +10,7 @@ terraform {
 
 locals {
   component_values       = yamldecode(file("${find_in_parent_folders("component_values.yaml")}"))
-  aws_account_admin_role = local.component_values["aws_account_admin_role"]
+  aws_account_admin_user = local.component_values["aws_account_admin_user"]
 
   env_values     = yamldecode(file("${find_in_parent_folders("env_values.yaml")}"))
   aws_account_id = local.env_values["aws_account_id"]
@@ -28,7 +28,7 @@ inputs = {
         "Action" : "kms:*",
         "Effect" : "Allow",
         "Principal" : {
-          "AWS" : local.aws_account_admin_role
+          "AWS" : local.aws_account_admin_user
         },
         "Resource" : "*",
         "Sid" : "Enable IAM User Permissions"

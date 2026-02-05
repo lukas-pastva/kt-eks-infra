@@ -10,12 +10,10 @@ cluster_logs:
 #  - scheduler
 cloudwatch_log_group_retention_in_days: 60
 
-cluster_admin_role: arn:aws:iam::400528358945:role/AWSReservedSSO_AWSAdministratorAccess_a312ae45290a75bb
-terraform_admin_role: arn:aws:iam::400528358945:role/terraform
+cluster_admin_user: arn:aws:iam::400528358945:user/terraform-admin
 
-aws_account_admin_role:
-  - arn:aws:iam::400528358945:role/aws-reserved/sso.amazonaws.com/eu-west-1/AWSReservedSSO_AWSAdministratorAccess_a312ae45290a75bb
-  - arn:aws:iam::400528358945:role/terraform
+aws_account_admin_user:
+  - arn:aws:iam::400528358945:user/terraform-admin
 
 argocd_config:
   argocd_fqdn: argocd.jamf.fun

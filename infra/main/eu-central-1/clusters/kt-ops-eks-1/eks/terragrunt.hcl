@@ -26,12 +26,11 @@ dependency "encryption_config" {
 
 locals {
   component_values                       = yamldecode(file("${find_in_parent_folders("component_values.yaml")}"))
-  aws_account_admin_role                 = local.component_values["aws_account_admin_role"]
+  aws_account_admin_user                 = local.component_values["aws_account_admin_user"]
   cluster_version                        = local.component_values["cluster_version"]
   cluster_logs                           = local.component_values["cluster_logs"]
   cloudwatch_log_group_retention_in_days = local.component_values["cloudwatch_log_group_retention_in_days"]
-  cluster_admin_role                     = local.component_values["cluster_admin_role"]
-  terraform_admin_role                   = local.component_values["terraform_admin_role"]
+  cluster_admin_user                     = local.component_values["cluster_admin_user"]
 
   mng_tags = merge(
     include.root.locals.custom_tags,
@@ -109,7 +108,7 @@ inputs = {
 
   cluster_endpoint_public_access_cidrs = concat(include.root.locals.public_trusted_access_cidrs)
 
-  kms_key_administrators = local.aws_account_admin_role
+  kms_key_administrators = local.aws_account_admin_user
 
   cluster_encryption_config = {
     provider_key_arn = dependency.encryption_config.outputs.arn
@@ -139,15 +138,10 @@ inputs = {
   cloudwatch_log_group_retention_in_days = local.cloudwatch_log_group_retention_in_days
 
 
-  aws_auth_roles = [
+  aws_auth_users = [
     {
-      rolearn  = local.cluster_admin_role
-      username = "adminuser:{{SessionName}}"
-      groups   = ["system:masters"]
-    },
-    {
-      rolearn  = local.terraform_admin_role
-      username = "adminuser:{{SessionName}}"
+      userarn  = local.cluster_admin_user
+      username = "admin"
       groups   = ["system:masters"]
     }
   ]
