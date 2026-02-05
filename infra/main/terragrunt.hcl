@@ -42,6 +42,14 @@ generate "provider-aws" {
   path      = "provider-aws.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<-EOF
+    terraform {
+      required_providers {
+        aws = {
+          source  = "hashicorp/aws"
+          version = ">= 5.79.0, < 6.0.0"
+        }
+      }
+    }
     variable "provider_default_tags" {
       type = map
       default = {}
