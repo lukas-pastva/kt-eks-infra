@@ -66,6 +66,10 @@ inputs = {
     "oidc_provider_arn"       = dependency.eks.outputs.oidc_provider_arn
   }
 
+  csi-external-snapshotter = {
+    enabled = true
+  }
+
   aws-ebs-csi-driver = {
     enabled          = true
     is_default_class = true
