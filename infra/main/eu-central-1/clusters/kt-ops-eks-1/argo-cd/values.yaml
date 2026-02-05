@@ -28,7 +28,7 @@ extraObjects:
         targetRevision: main
         helm:
           valueFiles:
-          - ../../../clusters/cluster-kt-ops-eks-1/applications.yaml
+          - ../../../cluster-kt-ops-eks-1/applications.yaml
       destination:
         namespace: argo-cd
         name: in-cluster
