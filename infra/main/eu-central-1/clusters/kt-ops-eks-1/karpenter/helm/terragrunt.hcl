@@ -19,7 +19,7 @@ dependency "eks" {
 dependency "karpenter" {
   config_path = "${get_original_terragrunt_dir()}/../infra"
   mock_outputs = {
-    irsa_arn              = "arn:xxx"
+    iam_role_arn          = "arn:xxx"
     instance_profile_name = "xxx"
     queue_name            = "xxxx"
   }
@@ -45,7 +45,7 @@ inputs = {
   version                          = "1.1.0"
   cluster_name                     = dependency.eks.outputs.cluster_name
   cluster_endpoint                 = dependency.eks.outputs.cluster_endpoint
-  karpenter_irsa_arn               = dependency.karpenter.outputs.irsa_arn
+  karpenter_irsa_arn               = dependency.karpenter.outputs.iam_role_arn
   karpenter_instance_profile_name  = dependency.karpenter.outputs.instance_profile_name
   karpenter_queue_name             = dependency.karpenter.outputs.queue_name
   karpenter_servicemonitor_enabled = false
