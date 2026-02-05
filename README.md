@@ -130,7 +130,26 @@ aws dynamodb describe-table --table-name sw-tronic-sk-tg-state-lock --region eu-
 
 ---
 
-## Step 4: Update Configuration Values
+## Step 4: Create AWS Service-Linked Roles
+
+These roles are required for EKS and Auto Scaling but don't exist in a fresh AWS account:
+
+```powershell
+# Required for KMS encryption on Auto Scaling nodes
+aws iam create-service-linked-role --aws-service-name autoscaling.amazonaws.com
+
+# Required for EKS cluster
+aws iam create-service-linked-role --aws-service-name eks.amazonaws.com
+
+# Required for EC2 Spot instances (used by Karpenter)
+aws iam create-service-linked-role --aws-service-name spot.amazonaws.com
+```
+
+Note: You may get "already exists" errors if these roles exist - that's fine, ignore them.
+
+---
+
+## Step 5: Update Configuration Values
 
 Before deploying, update these files with your values:
 
@@ -160,7 +179,7 @@ File: `infra/main/eu-central-1/clusters/kt-ops-eks-1/component_values.yaml`
 
 ---
 
-## Step 5: Deploy Infrastructure
+## Step 6: Deploy Infrastructure
 
 Deploy in this order (dependencies matter):
 
@@ -228,7 +247,7 @@ terragrunt run-all apply
 
 ---
 
-## Step 6: Configure kubectl
+## Step 7: Configure kubectl
 
 After EKS is deployed:
 
