@@ -23,7 +23,7 @@ locals {
 }
 
 terraform {
-  source = "github.com/terraform-aws-modules/terraform-aws-ecs?ref=v5.7.4"
+  source = "github.com/terraform-aws-modules/terraform-aws-ecs?ref=v5.12.0"
 }
 
 inputs = {

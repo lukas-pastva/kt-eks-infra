@@ -28,7 +28,7 @@ variable "create_readonly_role" {
 }
 
 
-# https://karpenter.sh/v0.27.0/concepts/node-templates/
+# https://karpenter.sh/docs/concepts/nodeclasses/
 
 variable "aws_node_templates" {
   type = map(object({
@@ -40,12 +40,13 @@ variable "aws_node_templates" {
     tag_key               = optional(string)
     tag_value             = string
     amiFamily             = optional(string)
+    node_role             = string  # Required for Karpenter v1.x EC2NodeClass
   }))
   default     = {}
-  description = "This variable defines AWS Node template for karpenter"
+  description = "This variable defines EC2NodeClass for Karpenter v1.x"
 }
 
-# https://karpenter.sh/v0.27.0/concepts/provisioners/
+# https://karpenter.sh/docs/concepts/nodepools/
 variable "provisioners" {
   type = map(object({
     name                 = string

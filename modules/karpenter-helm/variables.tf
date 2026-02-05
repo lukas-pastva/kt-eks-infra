@@ -26,7 +26,7 @@ variable "karpenter_chart" {
 variable "karpenter_version" {
   description = "The version of the Helm chart for Karpenter"
   type        = string
-  default     = "v0.23.0"
+  default     = "1.1.0"
 }
 
 variable "cluster-name" {

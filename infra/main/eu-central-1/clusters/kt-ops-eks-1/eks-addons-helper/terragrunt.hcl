@@ -116,6 +116,7 @@ inputs = {
       subnet_selector_value = dependency.eks.outputs.cluster_name
       tag_value             = dependency.eks.outputs.cluster_name
       amiFamily             = "Bottlerocket"
+      node_role             = dependency.eks.outputs.eks_managed_node_groups["default-a"].iam_role_name
     }
   }
 

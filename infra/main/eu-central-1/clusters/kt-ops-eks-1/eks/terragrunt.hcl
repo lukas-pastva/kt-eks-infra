@@ -38,7 +38,7 @@ locals {
 }
 
 terraform {
-  source = "github.com/terraform-aws-modules/terraform-aws-eks?ref=v19.21.0"
+  source = "github.com/terraform-aws-modules/terraform-aws-eks?ref=v20.31.0"
 
   after_hook "kubeconfig" {
     commands = ["apply"]
@@ -98,7 +98,9 @@ inputs = {
     include.root.locals.custom_tags
   )
 
-  manage_aws_auth_configmap = true
+  # EKS v20: Use access entries instead of aws_auth configmap
+  enable_cluster_creator_admin_permissions = true
+  authentication_mode = "API_AND_CONFIG_MAP"
 
   cluster_name                    = include.root.locals.full_name
   cluster_version                 = local.cluster_version
@@ -116,16 +118,16 @@ inputs = {
   }
   cluster_addons = {
     coredns = {
-      addon_version     = "v1.10.1-eksbuild.6"
-      resolve_conflicts = "OVERWRITE"
+      addon_version               = "v1.10.1-eksbuild.11"
+      resolve_conflicts_on_update = "OVERWRITE"
     }
     kube-proxy = {
-      addon_version     = "v1.28.4-eksbuild.1"
-      resolve_conflicts = "OVERWRITE"
+      addon_version               = "v1.28.12-eksbuild.5"
+      resolve_conflicts_on_update = "OVERWRITE"
     }
     vpc-cni = {
-      addon_version     = "v1.15.5-eksbuild.1"
-      resolve_conflicts = "OVERWRITE"
+      addon_version               = "v1.19.0-eksbuild.1"
+      resolve_conflicts_on_update = "OVERWRITE"
     }
   }
 
@@ -138,13 +140,19 @@ inputs = {
   cloudwatch_log_group_retention_in_days = local.cloudwatch_log_group_retention_in_days
 
 
-  aws_auth_users = [
-    {
-      userarn  = local.cluster_admin_user
-      username = "admin"
-      groups   = ["system:masters"]
+  access_entries = {
+    admin = {
+      principal_arn = local.cluster_admin_user
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
     }
-  ]
+  }
 
 
 

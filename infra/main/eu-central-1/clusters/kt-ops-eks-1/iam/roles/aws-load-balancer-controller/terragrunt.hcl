@@ -23,7 +23,7 @@ dependency "eks" {
 }
 
 terraform {
-  source = "github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-assumable-role-with-oidc?ref=v5.11.2"
+  source = "github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-assumable-role-with-oidc?ref=v5.52.0"
 }
 
 inputs = {

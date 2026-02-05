@@ -5,7 +5,7 @@ include "root" {
 }
 
 terraform {
-  source = "github.com/terraform-aws-modules/terraform-aws-route53.git//modules/zones?ref=v2.10.2"
+  source = "github.com/terraform-aws-modules/terraform-aws-route53.git//modules/zones?ref=v4.1.0"
 
 }
 

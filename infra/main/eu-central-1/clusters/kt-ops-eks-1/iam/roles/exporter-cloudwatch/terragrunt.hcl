@@ -24,7 +24,7 @@ dependency "policy" {
 }
 
 terraform {
-  source = "github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-role-for-service-accounts-eks?ref=v5.11.2"
+  source = "github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-role-for-service-accounts-eks?ref=v5.52.0"
 }
 
 locals {
