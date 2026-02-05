@@ -242,7 +242,7 @@ terragrunt apply
 # 8. Deploy Karpenter Helm chart
 cd ../helm
 terragrunt apply
-
+ 
 # 9. Deploy helper addons
 cd ../../eks-addons-helper
 terragrunt apply

@@ -37,6 +37,34 @@ locals {
   cluster_external_dns_domain_filter = local.component_values["cluster_external_dns_domain_filter"]
 }
 
+generate "snapshot-controller-patch" {
+  path      = "snapshot-controller-patch.tf"
+  if_exists = "overwrite"
+  contents  = <<-EOF
+    resource "kubectl_manifest" "snapshot_controller_toleration_patch" {
+      count     = var.csi-external-snapshotter["enabled"] ? 1 : 0
+      yaml_body = <<-YAML
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: snapshot-controller
+          namespace: kube-system
+        spec:
+          template:
+            spec:
+              tolerations:
+                - key: CriticalAddonsOnly
+                  operator: Exists
+      YAML
+
+      force_conflicts   = true
+      server_side_apply = true
+
+      depends_on = [kubectl_manifest.csi-external-snapshotter]
+    }
+  EOF
+}
+
 generate "provider-local" {
   path      = "provider-local.tf"
   if_exists = "overwrite"
@@ -68,6 +96,7 @@ inputs = {
 
   csi-external-snapshotter = {
     enabled = true
+    version = "v7.0.2"
   }
 
   aws-ebs-csi-driver = {
