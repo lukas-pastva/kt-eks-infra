@@ -29,6 +29,9 @@ inputs = {
   create_node_iam_role = false
   node_iam_role_arn    = dependency.eks.outputs.eks_managed_node_groups["default-a"].iam_role_arn
 
+  # Access entry is already created by the EKS module
+  create_access_entry = false
+
   tags = merge(
     include.root.locals.custom_tags
   )
