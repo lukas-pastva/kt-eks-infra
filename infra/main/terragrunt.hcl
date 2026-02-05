@@ -38,8 +38,8 @@ remote_state {
   }
 }
 
-generate "provider-aws" {
-  path      = "provider-aws.tf"
+generate "versions-override" {
+  path      = "versions_override.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<-EOF
     terraform {
@@ -50,6 +50,13 @@ generate "provider-aws" {
         }
       }
     }
+  EOF
+}
+
+generate "provider-aws" {
+  path      = "provider-aws.tf"
+  if_exists = "overwrite_terragrunt"
+  contents  = <<-EOF
     variable "provider_default_tags" {
       type = map
       default = {}
