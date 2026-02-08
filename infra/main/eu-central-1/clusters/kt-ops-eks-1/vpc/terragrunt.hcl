@@ -11,6 +11,12 @@ terraform {
 
 dependency "datasources" {
   config_path = "../../../datasources"
+
+  mock_outputs = {
+    aws_availability_zones = {
+      names = ["eu-central-1a", "eu-central-1b", "eu-central-1c"]
+    }
+  }
 }
 
 locals {
