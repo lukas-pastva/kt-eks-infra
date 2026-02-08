@@ -1,4 +1,3 @@
-skip                          = true
 terragrunt_version_constraint = ">= 0.68"
 
 locals {
