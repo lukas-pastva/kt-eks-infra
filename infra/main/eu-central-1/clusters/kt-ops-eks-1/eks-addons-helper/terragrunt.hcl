@@ -16,9 +16,6 @@ dependency "eks" {
   }
 }
 
-locals {
-}
-
 terraform {
   source = "../../../../../../modules/eks-addons-helper"
 }

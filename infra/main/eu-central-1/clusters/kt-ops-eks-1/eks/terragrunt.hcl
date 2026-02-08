@@ -64,21 +64,6 @@ terraform {
     ]
   }
 
-  after_hook "vpc-cni-prefix-delegation" {
-    commands = ["apply"]
-    execute  = [
-      "bash", "-c",
-      "kubectl --kubeconfig ${get_terragrunt_dir()}/kubeconfig set env daemonset aws-node -n kube-system ENABLE_PREFIX_DELEGATION=true"
-    ]
-  }
-
-  after_hook "vpc-cni-prefix-warm-prefix" {
-    commands = ["apply"]
-    execute  = [
-      "bash", "-c",
-      "kubectl --kubeconfig ${get_terragrunt_dir()}/kubeconfig set env daemonset aws-node -n kube-system WARM_PREFIX_TARGET=1"
-    ]
-  }
 }
 
 generate "provider-local" {
@@ -128,7 +113,21 @@ inputs = {
     vpc-cni = {
       addon_version               = "v1.19.0-eksbuild.1"
       resolve_conflicts_on_update = "OVERWRITE"
+      configuration_values = jsonencode({
+        env = {
+          ENABLE_PREFIX_DELEGATION = "true"
+          WARM_PREFIX_TARGET       = "1"
+        }
+      })
     }
+    # EBS CSI driver - disabled pending migration from particuleio module.
+    # Enabling this requires manual state management to avoid downtime.
+    # See: eks-addons-critical/ for the current EBS CSI driver config.
+    # aws-ebs-csi-driver = {
+    #   most_recent                 = true
+    #   resolve_conflicts_on_update = "OVERWRITE"
+    #   service_account_role_arn    = ""
+    # }
   }
 
   vpc_id                   = dependency.vpc.outputs.vpc_id

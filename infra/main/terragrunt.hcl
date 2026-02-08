@@ -1,5 +1,5 @@
 skip                          = true
-terragrunt_version_constraint = ">= 0.36"
+terragrunt_version_constraint = ">= 0.68"
 
 locals {
   merged = merge(
@@ -70,12 +70,9 @@ generate "provider-aws" {
   EOF
 }
 
-# Disabled while waiting for
-# https://github.com/hashicorp/terraform-provider-aws/issues/19204 to be
-# resolved.
-#inputs = {
-#  provider_default_tags = local.custom_tags
-#}
+inputs = {
+  provider_default_tags = local.custom_tags
+}
 
 # Use this to impersonate a role, useful for EKS when you want a role to be
 # the "root" use and not a personal AWS account

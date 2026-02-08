@@ -31,7 +31,7 @@ terraform {
 generate "provider-local" {
   path      = "provider-local.tf"
   if_exists = "overwrite"
-  contents  = file("../../../../../../../provider-config/eks-addons-critical/eks-addons-critical.tf")
+  contents  = file("../../../../../../../provider-config/eks-addons/eks-addons.tf")
 }
 
 inputs = {

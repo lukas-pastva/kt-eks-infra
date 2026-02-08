@@ -1,1 +1,0 @@
-This module is created to mitigate problem with (helm)[https://github.com/helm/helm/issues/9731] and (terragrunt)[https://github.com/aws-ia/terraform-aws-eks-blueprints/issues/825]

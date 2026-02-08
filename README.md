@@ -298,7 +298,7 @@ kt-eks-infra/
 │                   ├── iam/
 │                   └── ...
 ├── modules/                        # Custom Terraform modules
-│   ├── addons-blueprints/          # EKS addons wrapper
+│   ├── argocd-helm/                # ArgoCD via helm_release
 │   ├── eks-addons-helper/          # Karpenter configs
 │   └── karpenter-helm/             # Karpenter Helm
 └── provider-config/                # Provider configs
@@ -318,8 +318,10 @@ kt-eks-infra/
 ### EKS Cluster
 - EKS 1.31 with private + public endpoint
 - 3 managed node groups (Bottlerocket OS)
-- CoreDNS, kube-proxy, VPC CNI addons
+- CoreDNS, kube-proxy, VPC CNI (with prefix delegation), EBS CSI addons
 - Secrets encrypted with KMS
+
+> **Note:** EBS CSI driver is currently managed via `eks-addons-critical/` (particuleio module). A commented-out config exists in `eks/terragrunt.hcl` to migrate it to an EKS managed addon, but this requires manual Terraform state management to avoid PVC downtime.
 
 ### Auto-scaling
 - Karpenter for dynamic node provisioning
