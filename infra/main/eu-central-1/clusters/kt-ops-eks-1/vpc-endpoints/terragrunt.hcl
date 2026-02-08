@@ -8,11 +8,11 @@ dependency "vpc" {
   config_path = "${get_original_terragrunt_dir()}/../vpc"
 
   mock_outputs = {
-    private_subnet_ids = [
-      "subnet-00000000",
-      "subnet-00000001",
-      "subnet-00000002"
-    ]
+    vpc_id                   = "vpc-00000000"
+    private_subnets          = ["subnet-00000000", "subnet-00000001", "subnet-00000002"]
+    private_route_table_ids  = ["rtb-00000000", "rtb-00000001", "rtb-00000002"]
+    public_route_table_ids   = ["rtb-00000003"]
+    default_security_group_id = "sg-00000000"
   }
 }
 
