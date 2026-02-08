@@ -8,11 +8,14 @@ dependency "eks" {
   config_path = "${get_original_terragrunt_dir()}/../../eks"
 
   mock_outputs = {
-
-    cluster_id              = "cluster-name"
-    cluster_oidc_issuer_url = "https://oidc.eks.eu-central-3.amazonaws.com/id/0000000000000000"
-    node_groups             = {}
-    aws_auth_configmap_yaml = yamlencode("")
+    cluster_name            = "cluster-name"
+    cluster_endpoint        = "https://XXXXX.gr7.eu-central-1.eks.amazonaws.com"
+    cluster_oidc_issuer_url = "https://oidc.eks.eu-central-1.amazonaws.com/id/0000000000000000"
+    eks_managed_node_groups = {
+      "default-a" = {
+        node_group_arn = "arn:aws:eks:eu-central-1:111122223333:nodegroup/cluster/default-a/mock"
+      }
+    }
   }
 }
 

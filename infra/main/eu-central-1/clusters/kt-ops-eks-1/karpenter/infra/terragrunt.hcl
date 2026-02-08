@@ -11,9 +11,15 @@ dependency "eks" {
 
   mock_outputs = {
     cluster_name            = "cluster-name"
-    cluster_oidc_issuer_url = "https://oidc.eks.eu-central-3.amazonaws.com/id/0000000000000000"
+    cluster_oidc_issuer_url = "https://oidc.eks.eu-central-1.amazonaws.com/id/0000000000000000"
     oidc_provider_arn       = "arn:aws:iam::111122223333:oidc-provider/oidc.eks.eu-central-1.amazonaws.com/id/XXXXX"
-    node_groups             = {}
+    eks_managed_node_groups = {
+      "default-a" = {
+        iam_role_name  = "mock-role-name"
+        iam_role_arn   = "arn:aws:iam::111122223333:role/mock-role"
+        node_group_arn = "arn:aws:eks:eu-central-1:111122223333:nodegroup/cluster/default-a/mock"
+      }
+    }
   }
 }
 

@@ -17,11 +17,9 @@ dependency "eks" {
   config_path = "${get_original_terragrunt_dir()}/../eks"
 
   mock_outputs = {
-    cluster_id              = "cluster-name"
+    cluster_name            = "cluster-name"
     cluster_oidc_issuer_url = "https://oidc.eks.eu-central-1.amazonaws.com/id/0000000000000000"
-    oidc_provider_arn       = "https://oidc.eks.eu-central-3.amazonaws.com/id/0000000000000000"
-    node_groups             = {}
-    aws_auth_configmap_yaml = yamlencode("")
+    oidc_provider_arn       = "arn:aws:iam::111122223333:oidc-provider/oidc.eks.eu-central-1.amazonaws.com/id/XXXXX"
   }
 }
 
