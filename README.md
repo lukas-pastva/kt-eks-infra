@@ -29,8 +29,8 @@ Install these tools:
 curl --proto '=https' --tlsv1.2 -fsSL https://get.opentofu.org/install-opentofu.sh -o install-opentofu.sh
 chmod +x install-opentofu.sh && ./install-opentofu.sh --install-method deb && rm install-opentofu.sh
 
-# Terragrunt v0.63.6
-curl -L "https://github.com/gruntwork-io/terragrunt/releases/download/v0.63.6/terragrunt_linux_amd64" -o /usr/local/bin/terragrunt
+# Terragrunt v0.72.6
+curl -L "https://github.com/gruntwork-io/terragrunt/releases/download/v0.72.6/terragrunt_linux_amd64" -o /usr/local/bin/terragrunt
 chmod +x /usr/local/bin/terragrunt
 
 # AWS CLI, kubectl
@@ -135,11 +135,6 @@ aws dynamodb create-table \
     --key-schema AttributeName=LockID,KeyType=HASH \
     --billing-mode PAY_PER_REQUEST \
     --region eu-central-1
-```
-
-Verify table creation:
-```bash
-aws dynamodb describe-table --table-name sw-tronic-sk-tg-state-lock --region eu-central-1
 ```
 
 ---
