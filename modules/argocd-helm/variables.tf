@@ -1,7 +1,6 @@
 variable "cluster-name" {
   type        = string
-  default     = ""
-  description = "EKS cluster name, used by the generated provider config"
+  description = "EKS cluster name"
 }
 
 variable "argocd_helm_config" {

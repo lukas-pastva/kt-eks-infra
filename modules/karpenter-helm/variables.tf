@@ -29,8 +29,9 @@ variable "karpenter_version" {
   default     = "1.1.0"
 }
 
+
 variable "cluster-name" {
-  description = "The name of the EKS cluster where Karpenter will be installed"
+  description = "The name of the EKS cluster"
   type        = string
 }
 

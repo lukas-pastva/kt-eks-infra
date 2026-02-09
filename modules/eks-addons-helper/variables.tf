@@ -1,3 +1,8 @@
+variable "cluster-name" {
+  type        = string
+  description = "EKS cluster name"
+}
+
 variable "create_regcreds" {
   type        = bool
   default     = false

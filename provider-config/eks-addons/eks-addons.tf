@@ -32,9 +32,3 @@ provider "helm" {
 data "aws_eks_cluster" "cluster" {
   name = var.cluster-name
 }
-
-variable "cluster-name" {
-  type        = string
-  default     = ""
-  description = "This variable defines cluster-name used in a data resource above"
-}
