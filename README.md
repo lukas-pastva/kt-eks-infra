@@ -11,7 +11,7 @@ AWS EKS Infrastructure as Code using Terragrunt.
 | AWS Region | `eu-central-1` |
 | State Bucket | `sw-tronic-sk-tg-state-store` |
 | Lock Table | `sw-tronic-sk-tg-state-lock` |
-| Cluster Name | `kt-ops-eks-1` |
+| Cluster Name | `kt-dev-eks-1` |
 | Kubernetes Version | `1.31` |
 | VPC CIDR | `10.240.64.0/21` |
 | Domain | `jamf.fun` |
@@ -164,7 +164,7 @@ Before deploying, update these files with your values:
 
 ### 4.1 Update AWS Account ID
 
-File: `infra/main/env_values.yaml`
+File: `infra/dev/env_values.yaml`
 ```yaml
 aws_account_id: "YOUR_AWS_ACCOUNT_ID"  # Replace with your account ID
 ```
@@ -182,7 +182,7 @@ File: `infra/global_values.yaml`
 
 ### 4.3 Update Cluster Values
 
-File: `infra/main/eu-central-1/clusters/kt-ops-eks-1/component_values.yaml`
+File: `infra/dev/eu-central-1/clusters/kt-dev-eks-1/component_values.yaml`
 - Update `cluster_admin_user` and `aws_account_admin_user` with your IAM user ARN
 - Update ArgoCD settings if using GitOps
 
@@ -193,7 +193,7 @@ File: `infra/main/eu-central-1/clusters/kt-ops-eks-1/component_values.yaml`
 Deploy Route53 first - DNS propagation takes time, so set up NS records early:
 
 ```bash
-cd infra/main/eu-central-1/clusters/kt-ops-eks-1/route53/zones/jamf.fun
+cd infra/dev/eu-central-1/clusters/kt-dev-eks-1/route53/zones/jamf.fun
 terragrunt apply
 ```
 
@@ -206,7 +206,7 @@ Copy the 4 nameservers from the output and add them to your domain registrar now
 **Recommended:** Deploy everything at once - Terragrunt handles dependencies automatically:
 
 ```bash
-cd infra/main/eu-central-1
+cd infra/dev/eu-central-1
 terragrunt run-all apply
 ```
 
@@ -219,7 +219,7 @@ If you prefer to deploy components one by one (for debugging or understanding).
 Items on the same layer can be applied in parallel.
 
 ```bash
-cd infra/main/eu-central-1/clusters/kt-ops-eks-1
+cd infra/dev/eu-central-1/clusters/kt-dev-eks-1
 
 # Layer 0 - No dependencies (can run in parallel)
 tga encryption-config/
@@ -262,7 +262,7 @@ tga argo-cd/                                 # depends on eks
 After EKS is deployed:
 
 ```bash
-aws eks update-kubeconfig --name kt-ops-eks-1 --region eu-central-1
+aws eks update-kubeconfig --name kt-dev-eks-1 --region eu-central-1
 ```
 
 Verify connection:
@@ -280,13 +280,13 @@ kt-eks-infra/
 ├── infra/                          # Infrastructure configs
 │   ├── global_tags.yaml            # Tags for all resources
 │   ├── global_values.yaml          # Global settings
-│   └── main/                       # Main environment
+│   └── dev/                        # Dev environment
 │       ├── env_values.yaml         # AWS account ID
 │       ├── terragrunt.hcl          # Root config (state backend)
 │       └── eu-central-1/           # Region
 │           ├── datasources/        # AWS data sources
 │           └── clusters/
-│               └── kt-ops-eks-1/   # EKS cluster
+│               └── kt-dev-eks-1/   # EKS cluster
 │                   ├── vpc/
 │                   ├── eks/
 │                   ├── karpenter/
@@ -412,15 +412,15 @@ terragrunt force-unlock LOCK_ID
 
 ### Bucket Already Exists
 S3 bucket names are globally unique. Change `sw-tronic-sk-tg-state-store` to a unique name in:
-- `infra/main/terragrunt.hcl`
+- `infra/dev/terragrunt.hcl`
 
 ### EKS Auth Issues
 ```bash
 # Update kubeconfig
-aws eks update-kubeconfig --name kt-ops-eks-1 --region eu-central-1
+aws eks update-kubeconfig --name kt-dev-eks-1 --region eu-central-1
 
 # Check cluster status
-aws eks describe-cluster --name kt-ops-eks-1 --region eu-central-1
+aws eks describe-cluster --name kt-dev-eks-1 --region eu-central-1
 ```
 
 ---
@@ -430,7 +430,7 @@ aws eks describe-cluster --name kt-ops-eks-1 --region eu-central-1
 To destroy all resources (in reverse order):
 
 ```bash
-cd infra/main/eu-central-1
+cd infra/dev/eu-central-1
 terragrunt run-all destroy
 ```
 

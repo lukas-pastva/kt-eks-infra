@@ -11,5 +11,5 @@ public_trusted_access_cidrs: [
 
 # ip plan
 ip_addressing_plan:
-  kt-ops-eks-1:
+  kt-dev-eks-1:
     vpc_cidr: '10.240.64.0/21'

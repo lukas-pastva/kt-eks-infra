@@ -36,7 +36,7 @@ inputs = {
           "Condition" : {
             "StringEquals" : {
               "autoscaling:ResourceTag/k8s.io/cluster-autoscaler/enabled" : "true",
-              "autoscaling:ResourceTag/kubernetes.io/cluster/kt-ops-eks-1" : "owned"
+              "autoscaling:ResourceTag/kubernetes.io/cluster/kt-dev-eks-1" : "owned"
             }
           },
           "Effect" : "Allow",
